@@ -6,63 +6,99 @@ function Main() {
   const [LeftHandSIde, setLefthandSIde] = useState([]);
   const [RightHandleSIde, setRightHandSIde] = useState([]);
   const [isLeft, setisLEft] = useState(true);
-  const [CurrentCal, setCurrentCal] = useState("");
-
+  const [CurrentCal, setCurrentCal] = useState(0);
+  const [Typing, setTyping] = useState([]);
+  const [isTyping, setisTyping] = useState(false);
+  const [ShowHistory , setShowHiustory] = useState(false);
+ const [HistoryData,setHistoryData] = useState([]);
   const HandleNumberClick = (e) => {
     const buttonText = e.target.innerText;
+    
+    setTyping((prev => [...prev,buttonText]))
     if (isLeft) {
       setLefthandSIde((prevData) => [...prevData, buttonText]);
     } else {
       setRightHandSIde((prevData) => [...prevData, buttonText]);
+      setisTyping(true)
     }
   };
   const HandleCalculationClick = (e) => {
     setisLEft(false);
+    setisTyping(true);
     // console.log(e.target.innerText);
     setCurrentCal(e.target.innerText);
     console.log(e.target.innerText)
+    const buttonText = e.target.innerText;
+    setTyping((prev => [...prev,buttonText]))
   };
+
   const Caluculate = () => {
     console.log(LeftHandSIde);
     console.log(RightHandleSIde);
     let LHS = Number(LeftHandSIde.join(""));
     let RHS = Number(RightHandleSIde.join(""));
     if (CurrentCal === "+") {
-        let l = Number(LHS);
-        let r = Number(RHS)
-      let Total = (l) + (r);
+      let Total = LHS + RHS;
       setCalucaulatedTotal(Total);
     } else if (CurrentCal === "-") {
-        let l = Number(LHS);
-        let r = Number(RHS)
-      let Total = (l) - (r);
+      let Total = Number(LHS) - Number(RHS);
       setCalucaulatedTotal(Total);
-    }else if(CurrentCal === "%"){
-        let Total = (Number(LHS) % Number(RHS));
-        setCalucaulatedTotal(Total);
-    } else if(CurrentCal === "x"){
-        let Total = (Number(LHS) * Number(RHS));
-        setCalucaulatedTotal(Total);
-    } else if(CurrentCal === ""){
-        alert("Invalid")
-    }else if(CurrentCal === "÷"){
-        let Total = (Number(LHS) / Number(RHS));
-        setCalucaulatedTotal(Total);
+    } else if (CurrentCal === "%") {
+      let Total = LHS % RHS;
+      console.log(Total)
+      setCalucaulatedTotal(Total);
+    } else if (CurrentCal === "x") {
+      let Total = LHS * RHS;
+      setCalucaulatedTotal(Total);
+    } else if (CurrentCal === "") {
+      alert("Invalid");
+    } else if (CurrentCal === "÷") {
+      let Total = LHS / RHS;
+      setCalucaulatedTotal(Total);
     }
-  }; 
-
+    
+  };
+  
   const HandleClear = () => {
     setCalucaulatedTotal(0);
     setCurrentCal("");
     setLefthandSIde([]);
     setRightHandSIde([]);
+    let History = JSON.parse(localStorage.getItem("history")) ||  [];
+    console.log(Typing , CaluculatedTotal)
+    History.push(...Typing,CaluculatedTotal,"=");
+    localStorage.setItem("history",JSON.stringify(History));
+    window.location.reload()
   };
+
+  const GetHistory = () =>{
+    setShowHiustory(true)
+    let History = JSON.parse(localStorage.getItem("history")) ||  [];
+    setHistoryData(History)
+  }
   return (
     <div id="Calsi_Container">
-      <div className="Items_Container">Result</div>
+      {!ShowHistory ? 
+       <div>
+        <button onClick={GetHistory}>Show History</button> 
+        <button onClick={()=>localStorage.clear()}>Clear History</button> 
+       </div>
+      : <div className="Items_Container">
+        
+         {HistoryData.length > 0 ?
+          HistoryData.map((e)=>{
+            return(
+                <span>{e}</span>
+            )
+          })
+         
+         : "No History Found"}
+        </div>}
+      
+      
       <br />
       <br />
-      <div className="Items_Container">{CaluculatedTotal}</div>
+      <div className="Items_Container">{Typing} {isTyping && "="}{CaluculatedTotal}</div>
       <br />
       <br />
       <div className="Items_Container" id="ButtonsContainer">

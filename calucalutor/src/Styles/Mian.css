@@ -40,3 +40,7 @@ button {
     text-align: center;
     font-size:x-large;
 }
+button:hover{
+    background-color: aqua;
+    color: black;
+}
